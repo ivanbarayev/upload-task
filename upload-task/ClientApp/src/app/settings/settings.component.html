@@ -1,0 +1,43 @@
+<p *ngIf="!settings"><em>Loading...</em></p>
+
+<form #frm_settings="ngForm" (ngSubmit)="saveSettings(frm_settings)">
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="AllowedMimes">Min File Size (*)</label>
+      <input type="text" class="form-control" name="min_file_size" required *ngIf="settings" [(ngModel)]="settings.min_file_size">
+    </div>
+    <div class="form-group col-md-6">
+      <label for="inputPassword4">Max File Size (*)</label>
+      <input type="text" class="form-control" name="max_file_size" required *ngIf="settings" [(ngModel)]="settings.max_file_size">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-12">
+      <label for="inputAddress">Allowed Extensions (comma seperated) (*)</label>
+      <input type="text" class="form-control" name="allowed_extensions" placeholder="jpg,png" *ngIf="settings" [(ngModel)]="settings.allow_mimes">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-12">
+      <label for="inputAddress">Destination Path (Path on server) (*)</label>
+      <input type="text" class="form-control" name="destination_path" placeholder="C:\Path etc." *ngIf="settings" [(ngModel)]="settings.destination_path">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="allow_rename" *ngIf="settings" [(ngModel)]="settings.allow_rename">
+      <label class="form-check-label" for="allow_rename">Allow Rename (*)</label>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" name="allow_override" *ngIf="settings" [(ngModel)]="settings.allow_override">
+      <label class="form-check-label" for="allow_override">Allow Override (*)</label>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-md-12 ">
+      <button type="submit" class="btn btn-primary float-right">Save Settings (*)</button>
+    </div>
+  </div>
+</form>

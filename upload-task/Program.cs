@@ -13,6 +13,8 @@ namespace upload_task
     {
         public static void Main(string[] args)
         {
+            new Common().LoadSettings();
+            //new DBWrapper();
             CreateHostBuilder(args).Build().Run();
         }
 
