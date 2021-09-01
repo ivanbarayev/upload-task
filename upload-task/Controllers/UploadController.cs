@@ -17,75 +17,114 @@ namespace upload_task.Controllers
     {
         private readonly ILogger<UploadController> _logger;
         private int END = S.SUCCESS;
-        private HTTPResponser RESPONSE;
         private Common cm = new Common();
         UploadModel mod = new UploadModel();
+        private ObjectResult RESPONSE;
 
         public UploadController(ILogger<UploadController> logger)
         {
             _logger = logger;
         }
 
+
         [HttpPost, DisableRequestSizeLimit]
-        public async Task<HTTPResponser> Post()
+        public async Task<IActionResult> UploadInsert()
         {
-            long cnt = 1;
-
-
-            if (cnt > 0)
+            try
             {
-                END = mod.UploadInsertFS(Request);
-                if (END == S.ERROR)
+                var httpRequest = HttpContext.Request;
+                int cnt = httpRequest.Form.Files.Count;
+
+                if (cnt > 0)
                 {
-                    RESPONSE = cm.Responser(S.ERROR, "Internal Error");
+                    END = mod.UploadInsertFS(Request);
+                    if (END == S.ERROR)
+                    {
+                        RESPONSE = StatusCode(500, cm.Responser(S.ERROR, "Internal Error"));
+                    }
+                    else
+                    {
+                        RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, $"{END} Record Inserted Successfully in FileSystem"));
+                    }
                 }
                 else
                 {
-                    RESPONSE = cm.Responser(S.SUCCESS, $"{END} Record Inserted Successfully in FileSystem");
+                    RESPONSE = StatusCode(400, cm.Responser(S.ERROR, "Bad Request"));
                 }
             }
-            else
+            catch (Exception ex)
             {
-                RESPONSE = cm.Responser(S.ERROR, "Bad Request");
+                await cm.LogWriter(S.ERROR, "Controller.UploadInsert", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, "Internal Error"));
             }
 
             return RESPONSE;
         }
 
-        [HttpGet("{src:int}/{id:int}"), DisableRequestSizeLimit]
-        public async Task<HTTPResponser> View([FromRoute] int src, int id)
+
+        [HttpGet("{id}"), DisableRequestSizeLimit]
+        public async Task<IActionResult> UploadView([FromRoute] string id)
         {
-            return cm.Responser(1, "Başarılı GET w/param" + id + " src:" + src + " -- " + SettingsENV.destination_path.ToString());
+            try
+            {
+                var resp = mod.UploadView(id).Result;
+                RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, $"Successfully", resp));
+            }
+            catch (Exception ex)
+            {
+                await cm.LogWriter(S.ERROR, "Controller.UploadView", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, "Internal Error"));
+            }
+
+            return RESPONSE;
         }
+
 
         [HttpGet, DisableRequestSizeLimit]
-        public async Task<HTTPResponser> Get()
+        public async Task<IActionResult> UploadList()
         {
-            return cm.Responser(1, "Başarılı GET" + SettingsENV.destination_path.ToString());
-        }
-
-
-        [HttpDelete("{src:int}/{id}")]
-        public async Task<HTTPResponser> Delete([FromRoute] int src, string id)
-        {
-
-            var END = mod.UploadDelete(id);
-            if (END == -1)
+            
+            try
             {
-                RESPONSE = cm.Responser(S.ERROR, "Internal Error");
+                var page = int.Parse(HttpContext.Request.Query["page"]);
+                var pageSize = int.Parse(HttpContext.Request.Query["pageSize"]);
+
+                var resp = mod.UploadList(page, pageSize);
+                RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, $"", resp.Result));
             }
-            else if (END == 0)
+            catch (Exception ex)
             {
-                RESPONSE = cm.Responser(S.NOTFOUND, "Record Not Found");
-            }
-            else
-            {
-                RESPONSE = cm.Responser(S.SUCCESS, $"{END} Record Deleted Successfully");
+                await cm.LogWriter(S.ERROR, "Controller.UploadList", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, "Internal Error"));
             }
 
             return RESPONSE;
         }
 
 
+        [HttpDelete("{src}/{id}")]
+        public async Task<IActionResult> UploadDelete([FromRoute] string src, string id)
+        {
+            try
+            {
+                var END = await mod.UploadDelete(src, id);
+                
+                if (END == 0)
+                {
+                    RESPONSE = StatusCode(200, cm.Responser(S.NOTFOUND, "Record Not Found"));
+                }
+                else
+                {
+                    RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, $"{END} Record Deleted Successfully"));
+                }
+            }
+            catch (Exception ex)
+            {
+                await cm.LogWriter(S.ERROR, "Controller.UploadDelete", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, "Internal Error"));
+            }
+
+            return RESPONSE;
+        }
     }
 }

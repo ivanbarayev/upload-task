@@ -3,6 +3,8 @@ using System.IO;
 using static System.Environment;
 using Newtonsoft.Json;
 using upload_task.Models;
+using System.Threading.Tasks;
+
 namespace upload_task
 {
     public class Common
@@ -123,7 +125,7 @@ namespace upload_task
 
         #region Settings Loader
         /*
-         * Load system default settings from JSON file
+         * Load system default settings from MongoD
          */
         public void LoadSettings()
         {
@@ -183,7 +185,7 @@ namespace upload_task
         /*
          * Write system error logs to JSON file
          */
-        public void LogWriter(int status, string location, string message)
+        public async Task LogWriter(int status, string location, string message)
         {
             END = ChkDir(log_dir);
             if (END == S.SUCCESS || END == S.EXIST)

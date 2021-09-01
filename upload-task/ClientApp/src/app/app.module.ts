@@ -1,40 +1,30 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { RouterModule } from '@angular/router';
-import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
-import { UploadComponent } from './upload/upload.component';
-import { SettingsComponent } from './settings/settings.component';
-import { FileListComponent } from './file-list/file-list.component';
-import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {AppRoutingModule} from './app-routing.module';
+import {AppComponent} from './app.component';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {SettingsComponent} from './settings/settings.component';
+import {LayoutModule} from "./layout/layout.module";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
-    HomeComponent,
-    UploadComponent,
-    SettingsComponent,
-    FileListComponent
+    SettingsComponent
   ],
   imports: [
-    BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
+    BrowserModule,
     HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    SweetAlert2Module.forChild({ /* options */ }),
-    RouterModule.forRoot([
-      { path: '', component: HomeComponent, pathMatch: 'full' },
-      { path: 'upload', component: UploadComponent, pathMatch: 'full' },
-      { path: 'file-list', component: FileListComponent, pathMatch: 'full' },
-      { path: 'settings', component: SettingsComponent, pathMatch: 'full' }
-    ])
+    AppRoutingModule,
+    NgbModule,
+    LayoutModule,
+    FormsModule
   ],
-  providers: [],
-  bootstrap: [AppComponent],
+  providers   : [],
+  bootstrap   : [AppComponent],
   exports: [ReactiveFormsModule]
 })
-export class AppModule { }
+
+export class AppModule {
+}

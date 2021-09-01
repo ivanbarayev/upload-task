@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using System.IO;
-using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using upload_task.Models;
 
@@ -11,13 +9,12 @@ namespace upload_task.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-
     public class SettingsController : Controller
     {
-        private static string collection_name = "settings";
         private readonly ILogger<SettingsController> _logger;
         private Common cm = new Common();
         SettingsModel mod = new SettingsModel();
+        private ObjectResult RESPONSE;
 
         public SettingsController(ILogger<SettingsController> logger)
         {
@@ -25,48 +22,37 @@ namespace upload_task.Controllers
         }
 
         [HttpGet, DisableRequestSizeLimit]
-        public IActionResult Get()
+        public async Task<IActionResult> GetSettings()
         {
             try
             {
                 var data = mod.SettingsRead();
-                return Ok(cm.Responser(1, "Success GET", data));
+                RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, "Success", data));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, cm.Responser(2, $"Internal server error : {ex}"));
+                await cm.LogWriter(S.ERROR, "Controller.GetSettings", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, $"Internal server error : {ex}"));
             }
+
+            return RESPONSE;
         }
 
-
-        [HttpPost, DisableRequestSizeLimit]
-        public IActionResult Post([FromBody] Settings data)
+        [HttpPatch, DisableRequestSizeLimit]
+        public async Task<IActionResult> UpdateSetting([FromBody] Settings data)
         {
             try
             {
-                cm.WriteToFile(JsonConvert.SerializeObject(data));
-                return Ok(cm.Responser(1, "Success POST"));
+                var resp = mod.SettingsUpdate(data);
+                RESPONSE = StatusCode(200, cm.Responser(S.SUCCESS, "Settings Updated Successfully", resp));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, cm.Responser(2, $"Internal server error : {ex}"));
+                await cm.LogWriter(S.ERROR, "Controller.UpdateSetting", ex.Message);
+                RESPONSE = StatusCode(500, cm.Responser(S.ERROR, $"Internal server error : {ex}"));
             }
+
+            return RESPONSE;
         }
-
-
-        [HttpPut, DisableRequestSizeLimit]
-        public IActionResult Put([FromBody] Settings data)
-        {
-            try
-            {
-                var leo = mod.SettingsUpdate(data);
-                return Ok(cm.Responser(1, "Success PUT", leo));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, cm.Responser(2, $"Internal server error : {ex}"));
-            }
-        }
-
     }
 }

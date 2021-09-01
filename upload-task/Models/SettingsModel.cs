@@ -1,7 +1,5 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Conventions;
+﻿using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using System;
 
 namespace upload_task.Models
@@ -26,27 +24,25 @@ namespace upload_task.Models
             }
             catch (Exception ex)
             {
-                cm.LogWriter(2, "SettingsModel.Constructor", ex.Message);
+                cm.LogWriter(S.ERROR, "SettingsModel.Constructor", ex.Message);
             }
         }
 
-
         public Settings SettingsRead()
         {
-            return _sets.Find<Settings>(dat => dat._id == 6453).FirstOrDefault();
+            return _sets.Find(dat => dat._id == 6453).FirstOrDefault();
         }
 
         public int SettingsInsert(Settings data)
         {
             try
             {
-                //var doc = JsonConvert.SerializeObject(data);
                 var collection = db.GetCollection<Settings>(collection_name);
                 collection.InsertOne(data);
             }
             catch (Exception ex)
             {
-                cm.LogWriter(2, "SettingsModel.SettingsInsert", ex.Message);
+                cm.LogWriter(S.ERROR, "SettingsModel.SettingsInsert", ex.Message);
                 END = 2;
             }
 
@@ -55,19 +51,10 @@ namespace upload_task.Models
 
         public int SettingsUpdate(Settings data)
         {
-            try
-            {
-                cm.LogWriter(1, "SettingsModel.SettingsUpdate", data.ToJson());
-                var collection = db.GetCollection<Settings>(collection_name);
-                var filter = Builders<Settings>.Filter.Eq("_id", 6453);
-                collection.ReplaceOne(filter, data);
-            }
-            catch (Exception ex)
-            {
-                cm.LogWriter(2, "SettingsModel.SettingsUpdate", ex.Message);
-                END = 2;
-            }
-
+            var collection = db.GetCollection<Settings>(collection_name);
+            var filter = Builders<Settings>.Filter.Eq("_id", 6453);
+            collection.ReplaceOne(filter, data);
+            
             return END;
         }
 

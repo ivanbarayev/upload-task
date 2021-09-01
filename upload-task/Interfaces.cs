@@ -1,5 +1,7 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using System.Collections.Generic;
 using static System.Environment;
 using J = Newtonsoft.Json.JsonPropertyAttribute;
 using N = Newtonsoft.Json.NullValueHandling;
@@ -13,16 +15,30 @@ namespace upload_task
         public static int NOTFOUND = 0;
         public static int SUCCESS = 1;
     }
+
+    public class Pager
+    {
+        [J("total")]
+        public long total { get; set; }
+        [J("count")]
+        public int count { get; set; }
+        [J("page")]
+        public int page { get; set; }
+        [J("size")]
+        public int size { get; set; }
+        [J("data")]
+        public IEnumerable<FileInfo> data { get; set; }
+    }
+
     public class FileInfo
     {
+        [BsonRepresentation(BsonType.ObjectId)]
         [J("_id", NullValueHandling = N.Ignore)]
-        public MongoDB.Bson.ObjectId? _id { get; set; }
+        public string _id { get; set; }
         [J("store_type")]
         public string store_type { get; set; } //FS - DB
-        [J("file_name_org")]
-        public string file_name_org { get; set; }
-        [J("file_name_gen")]
-        public string file_name_gen { get; set; }
+        [J("file_name")]
+        public string file_name { get; set; }
         [J("file_mime")]
         public string file_mime { get; set; }
         [J("file_size")]
@@ -37,17 +53,6 @@ namespace upload_task
         public string ip { get; set; }
         [J("image", NullValueHandling = N.Ignore)]
         public string image { get; set; }
-    }
-
-    public class UploadRequest
-    {
-        public DateTime Date { get; set; }
-
-        public int TemperatureC { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-
-        public string Summary { get; set; }
     }
 
     public class HTTPResponser
@@ -74,7 +79,7 @@ namespace upload_task
     {
         [BsonIgnoreIfNull]
         [J("_id", NullValueHandling = N.Ignore)]
-        public int _id { get; set; }
+        public int _id { get; set; } = 6453;
         [J("min_file_size", NullValueHandling = N.Ignore)]
         public int min_file_size { get; set; }
         [J("max_file_size", NullValueHandling = N.Ignore)]
@@ -82,23 +87,8 @@ namespace upload_task
         [J("destination_path", NullValueHandling = N.Ignore)]
         public string destination_path { get; set; }
         [J("allow_mimes", NullValueHandling = N.Ignore)]
-        public string allow_mimes { get; set; }
-        [J("allow_rename", NullValueHandling = N.Ignore)]
-        public bool allow_rename { get; set; }
-        [J("allow_override", NullValueHandling = N.Ignore)]
-        public bool allow_override { get; set; }
-        [J("store_type", NullValueHandling = N.Ignore)] 
-        public string store_type { get; set; } //FS - DB - BOTH
-    }
-    public class Settings2
-    {
-        [J("min_file_size", NullValueHandling = N.Ignore)]
-        public int min_file_size { get; set; }
-        [J("max_file_size", NullValueHandling = N.Ignore)]
-        public int max_file_size { get; set; }
-        [J("destination_path", NullValueHandling = N.Ignore)]
-        public string destination_path { get; set; }
-        [J("allow_mimes", NullValueHandling = N.Ignore)]
+        public string store_type { get; set; }
+        [J("store_type", NullValueHandling = N.Ignore)]
         public string allow_mimes { get; set; }
         [J("allow_rename", NullValueHandling = N.Ignore)]
         public bool allow_rename { get; set; }
@@ -113,4 +103,6 @@ namespace upload_task
         public string message { get; set; }
         public DateTime date { get; set; }
     }
+
+
 }
